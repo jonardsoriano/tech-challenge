@@ -1,7 +1,55 @@
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function Home() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    licencePlate: "",
+    startDate: "",
+    endDate: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess(false);
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Error creating booking");
+      } else {
+        setSuccess(true);
+        setForm({
+          name: "",
+          email: "",
+          licencePlate: "",
+          startDate: "",
+          endDate: "",
+        });
+      }
+    } catch (err) {
+      setError("Network error");
+    }
+    setLoading(false);
+  };
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -13,38 +61,59 @@ export default function Home() {
           height={38}
           priority
         />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            maxWidth: 400,
+            margin: "0 auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          }}
+        >
+          <h2>Book a Car Park</h2>
+          <input
+            name="name"
+            placeholder="Name"
+            value={form.name}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="licencePlate"
+            placeholder="Licence Plate"
+            value={form.licencePlate}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="startDate"
+            type="date"
+            value={form.startDate}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="endDate"
+            type="date"
+            value={form.endDate}
+            onChange={handleChange}
+            required
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? "Booking..." : "Book"}
+          </button>
+          {error && <div style={{ color: "red" }}>{error}</div>}
+          {success && <div style={{ color: "green" }}>Booking created!</div>}
+        </form>
       </main>
       <footer className={styles.footer}>
         <a

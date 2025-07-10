@@ -25,6 +25,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <nav style={{ display: 'flex', gap: 16, justifyContent: 'center', margin: '2rem 0' }}>
+          <a href="/">Book a Car Park</a>
+          <a href="/bookings">View Bookings</a>
+        </nav>
         {children}
       </body>
     </html>
